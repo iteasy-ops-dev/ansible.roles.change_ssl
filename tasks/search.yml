@@ -1,8 +1,8 @@
 - name: Render the Jinja2 template and store it in a file
   template:
-  src: info_script_template.j2
-  dest: /tmp/info_script.sh
-  mode: '0755'
+    src: info_script_template.j2
+    dest: /tmp/info_script.sh
+    mode: '0755'
 
 - name: Execute the system information script using raw
   raw: "/tmp/info_script.sh"
