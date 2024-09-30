@@ -1,4 +1,4 @@
-- name: Render the Jinja2 template and store it in a variable
+- name: Render the Jinja2 template and store it in a file
   template:
     src: info_script_template.j2
     dest: /tmp/info_script.sh  # 원격 서버에 임시 스크립트 저장
@@ -6,6 +6,11 @@
 
 - name: Execute the system information script using raw
   raw: "/tmp/info_script.sh"
+  register: result  # 결과를 저장
+
+- name: Output the script execution result
+  debug:
+    var: result.stdout  # stdout 출력
 
 - name: Remove the script after execution
   raw: "rm -f /tmp/info_script.sh"
