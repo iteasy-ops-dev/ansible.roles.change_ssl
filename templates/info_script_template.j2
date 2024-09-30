@@ -1,0 +1,21 @@
+#!/bin/bash
+
+echo "Gathering system information..."
+
+# Get disk usage information
+echo "Disk Usage:"
+df -h
+
+# Get memory usage information
+echo "Memory Usage:"
+free -m
+
+# Get CPU information
+echo "CPU Information:"
+lscpu | grep "Model name"
+
+# If specified, get the hostname
+{% if get_hostname %}
+echo "Hostname:"
+hostname
+{% endif %}
