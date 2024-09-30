@@ -10,8 +10,7 @@
 
 - name: Output the script execution result in YAML format
   debug:
-    var: result.stdout
-    format: yaml  # YAML 형식으로 출력
+    msg: "{{ result.stdout.splitlines() }}"
 
 - name: Remove the script after execution
   raw: "rm -f /tmp/info_script.sh"
