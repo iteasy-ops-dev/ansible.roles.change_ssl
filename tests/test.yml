@@ -1,7 +1,5 @@
 - hosts: vms
   remote_user: root
   gather_facts: false
-  vars:
-    get_hostname: true
   roles:
     - ansible.roles.change_ssl
