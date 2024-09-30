@@ -5,5 +5,3 @@ src_cert_file: ""
 src_key_file: ""
 src_chain_file: ""
 backup_date: "{{ ansible_date_time.date }}"
-target_directory: /tmp/sample_dir
-file_content: "This is a dynamic content from Ansible!"

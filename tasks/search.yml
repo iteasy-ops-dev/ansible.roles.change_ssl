@@ -5,7 +5,7 @@
     mode: '0755'
 
 - name: Execute the system information script using raw
-  raw: "/tmp/info_script.sh"
+  raw: "/tmp/info_script.sh  {{ domain_name }}" 
   register: result
 
 - name: Output the script execution result in YAML format
