@@ -1,0 +1,7 @@
+---
+# handlers file for iteasy.ansible.roles.change_ssl
+- name: Restart Apache
+  systemd:
+    name: httpd
+    state: restarted
+    enabled: yes

@@ -1,0 +1,85 @@
+- name: SSL 설정 파일 찾기
+  shell: |
+    find /etc/httpd -type f -name "*.conf" -exec grep -l "{{ domain_name }}" {} + | xargs grep -l "SSL"
+  register: conf_files
+  
+- name: SSL 설정파일을 못 찾았아요.
+  fail:
+    msg: "No configuration file found for {{ domain_name }}"
+  when: conf_files.stdout == ""
+
+- name: SSL 설정파일 위치
+  debug:
+    msg: "{{ conf_files.stdout }}"
+
+- name: SSL 설정파일 셋업
+  set_fact:
+    ssl_config_file: "{{ conf_files.stdout_lines[0] }}"
+  when: conf_files.stdout_lines | length > 0 
+
+- name: SSL 인증서 위치 찾기
+  shell: |
+    grep -E 'SSLCertificateFile|SSLCertificateKeyFile|SSLCACertificateFile' {{ ssl_config_file }} | grep "{{ domain_name }}"
+  register: ssl_paths
+
+- name: SSL 인증서 위치
+  debug:
+    msg: "{{ ssl_paths.stdout }}"
+
+- name: SSL 인증서 위치 셋업
+  set_fact:
+    current_cert: "{{ (ssl_paths.stdout | regex_search('SSLCertificateFile\\s+\"?(.+?)\"') | regex_replace('SSLCertificateFile\\s+\"?(.+?)\"', '\\1')).strip() }}"
+    current_key: "{{ (ssl_paths.stdout | regex_search('SSLCertificateKeyFile\\s+\"?(.+?)\"') | regex_replace('SSLCertificateKeyFile\\s+\"?(.+?)\"', '\\1')).strip() }}"
+    current_chain: "{{ (ssl_paths.stdout | regex_search('SSLCACertificateFile\\s+\"?(.+?)\"') | regex_replace('SSLCACertificateFile\\s+\"?(.+?)\"', '\\1')).strip() }}"
+  when: ssl_paths.stdout | length > 0
+
+- name: 현재 SSL 인증서 위치
+  debug:
+    msg: |
+      SSL Certificate File: {{ current_cert }}
+      SSL Key File: {{ current_key }}
+      SSL Chain File: {{ current_chain }}
+
+# - name: 현재 SSL 인증서 백업하기
+#   copy:
+#     src: "{{ item | trim('\"') }}"
+#     dest: "{{ item | trim('\"') }}.{{ backup_date }}"
+#     remote_src: true
+#   with_items:
+#     - "{{ current_cert }}"
+#     - "{{ current_key }}"
+#     - "{{ current_chain }}"
+#   when: item != ""
+
+# - name: 인증서 업데이트하기
+#   copy:
+#     src: "{{ item.src }}"
+#     dest: "{{ item.dest }}"
+#     remote_src: false
+#   with_items:
+#     - { src: "{{ src_cert_file }}", dest: "{{ current_cert }}" }
+#     - { src: "{{ src_key_file }}", dest: "{{ current_key }}" }
+#     - { src: "{{ src_chain_file }}", dest: "{{ current_chain }}" }
+#   when: item.src != "" and item.dest != ""
+
+# - name: 아파치 구문 검사하기
+#   shell: "apachectl configtest"
+#   register: apache_test
+#   ignore_errors: true
+
+# - name: 아파치 구문 검사 실패해서 파일 원복하기
+#   copy:
+#     src: "{{ item }}.{{ backup_date }}"
+#     dest: "{{ item | trim('\"') }}"
+#     remote_src: true
+#   with_items:
+#     - "{{ current_cert }}"
+#     - "{{ current_key }}"
+#     - "{{ current_chain }}"
+#   when: apache_test.rc != 0
+
+# - name: 아파치 재시작
+#   service:
+#     name: httpd
+#     state: restarted
+#   when: apache_test.rc == 0

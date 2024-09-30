@@ -1,0 +1,230 @@
+# - name: Find SSL configuration files for Apache (Debian based)
+#   shell: |
+#     grep -rl "^SSLCertificateFile" /etc/apache2/ | xargs grep -l "{{ domain }}"
+#   register: ssl_config_files_debian
+#   ignore_errors: true
+
+# - name: Debug SSL configuration files found (Debian)
+#   debug:
+#     var: ssl_config_files_debian
+
+# - name: Set SSL config file path (Debian)
+#   set_fact:
+#     ssl_config_file: "{{ ssl_config_files_debian.stdout_lines[0] }}"
+#   when: ssl_config_files_debian.stdout_lines | length > 0 
+
+# - name: Debug SSL config file path
+#   debug:
+#     var: ssl_config_file
+
+# - name: Fail if no SSL configuration file found
+#   fail:
+#     msg: "No SSL configuration file found on the target node."
+#   when: ssl_config_file is not defined
+
+# - name: Get SSL certificate paths from configuration file
+#   command: "grep -E '^SSLCertificateFile|^SSLCertificateKeyFile|^SSLCertificateChainFile' {{ ssl_config_file }}"
+#   register: ssl_paths
+
+# - name: Debug SSL paths
+#   debug:
+#     var: ssl_paths
+
+# - name: Set SSL certificate paths
+#   set_fact:
+#     cert_file_path: "{{ (ssl_paths.stdout | regex_search('SSLCertificateFile\\s+(.+)') | regex_replace('SSLCertificateFile\\s+(.+)', '\\1')).strip() }}"
+#     key_file_path: "{{ (ssl_paths.stdout | regex_search('SSLCertificateKeyFile\\s+(.+)') | regex_replace('SSLCertificateKeyFile\\s+(.+)', '\\1')).strip() }}"
+#     chain_file_path: "{{ (ssl_paths.stdout | regex_search('SSLCertificateChainFile\\s+(.+)') | regex_replace('SSLCertificateChainFile\\s+(.+)', '\\1')).strip() }}"
+
+# - name: Debug SSL certificate paths
+#   debug:
+#     msg: |
+#       SSL Certificate File: {{ cert_file_path }}
+#       SSL Key File: {{ key_file_path }}
+#       SSL Chain File: {{ chain_file_path }}
+
+# - name: Create backup directory
+#   file:
+#     path: "{{ cert_file_path | dirname }}/backup_{{ backup_date }}"
+#     state: directory
+
+# - name: Debug backup directory path
+#   debug:
+#     msg: "Backup directory created at {{ cert_file_path | dirname }}/backup_{{ backup_date }}"
+
+# - name: Backup existing SSL files
+#   copy:
+#     src: "{{ item }}"
+#     dest: "{{ cert_file_path | dirname }}/backup_{{ backup_date }}/"
+#   with_items:
+#     - "{{ cert_file_path }}"
+#     - "{{ key_file_path }}"
+#     - "{{ chain_file_path }}"
+#   ignore_errors: true
+
+# - name: Debug backup files
+#   debug:
+#     msg: "Backed up files to {{ cert_file_path | dirname }}/backup_{{ backup_date }}/"
+
+# - name: Copy new SSL certificate files
+#   copy:
+#     src: "{{ item.src }}"
+#     dest: "{{ item.dest }}"
+#   with_items:
+#     - { src: "{{ src_cert_file }}", dest: "{{ cert_file_path }}" }
+#     - { src: "{{ src_key_file }}", dest: "{{ key_file_path }}" }
+#     - { src: "{{ src_chain_file }}", dest: "{{ chain_file_path }}" }
+
+# - name: Debug new SSL files copy
+#   debug:
+#     msg: "New SSL files copied to {{ cert_file_path }}, {{ key_file_path }}, {{ chain_file_path }}"
+
+# - name: Test Apache configuration
+#   shell: "{{ 'apachectl configtest' if ansible_os_family == 'RedHat' else 'apache2ctl configtest' }}"
+#   register: apache_configtest
+#   ignore_errors: true
+
+# - name: Debug Apache config test result
+#   debug:
+#     var: apache_configtest
+
+# - name: Restart Apache if configuration is valid
+#   service:
+#     name: "{{ 'httpd' if ansible_os_family == 'RedHat' else 'apache2' }}"
+#     state: restarted
+#   when: apache_configtest.rc == 0
+
+# - name: Restore backup if Apache configuration test fails
+#   block:
+#     - name: Restore SSL files from backup
+#       copy:
+#         src: "{{ cert_file_path | dirname }}/backup_{{ backup_date }}/{{ item | basename }}"
+#         dest: "{{ item }}"
+#       with_items:
+#         - "{{ cert_file_path }}"
+#         - "{{ key_file_path }}"
+#         - "{{ chain_file_path }}"
+
+#     - name: Test Apache configuration after restore
+#       shell: "{{ 'apachectl configtest' if ansible_os_family == 'RedHat' else 'apache2ctl configtest' }}"
+#       register: apache_configtest_restore
+#       ignore_errors: true
+
+#     - name: Debug Apache config test result after restore
+#       debug:
+#         var: apache_configtest_restore
+
+#     - name: Restart Apache after restore
+#       service:
+#         name: "{{ 'httpd' if ansible_os_family == 'RedHat' else 'apache2' }}"
+#         state: restarted
+#       when: apache_configtest_restore.rc == 0
+#   when: apache_configtest.rc != 0
+
+
+
+
+# - name: Find SSL configuration files for Apache (Debian based)
+#   command: "grep -rl '^SSLCertificateFile' /etc/apache2/"
+#   register: ssl_config_files_debian
+#   ignore_errors: true
+
+# - name: Filter SSL config files by domain
+#   set_fact:
+#     ssl_config_files_filtered: "{{ ssl_config_files_debian.stdout_lines | select('search', domain) | list }}"
+
+# - name: Debug SSL configuration files found (Debian)
+#   debug:
+#     var: ssl_config_files_filtered
+
+# - name: Set SSL config file path (Debian)
+#   set_fact:
+#     ssl_config_file: "{{ ssl_config_files_filtered[0] }}"
+#   when: ssl_config_files_filtered | length > 0
+
+# - name: Fail if no SSL configuration file found
+#   fail:
+#     msg: "No SSL configuration file found on the target node."
+#   when: ssl_config_file is not defined
+
+# - name: Get SSL certificate paths from configuration file
+#   command: "grep -E '^SSLCertificateFile|^SSLCertificateKeyFile|^SSLCertificateChainFile' {{ ssl_config_file }}"
+#   register: ssl_paths
+#   failed_when: ssl_paths.rc != 0 or ssl_paths.stdout_lines | length == 0
+
+# - name: Debug SSL paths
+#   debug:
+#     var: ssl_paths
+
+# - name: Set SSL certificate paths
+#   set_fact:
+#     cert_file_path: "{{ ssl_paths.stdout_lines | select('search', '^SSLCertificateFile') | list | first | regex_replace('SSLCertificateFile\\s+', '') }}"
+#     key_file_path: "{{ ssl_paths.stdout_lines | select('search', '^SSLCertificateKeyFile') | list | first | regex_replace('SSLCertificateKeyFile\\s+', '') }}"
+#     chain_file_path: "{{ ssl_paths.stdout_lines | select('search', '^SSLCertificateChainFile') | list | first | regex_replace('SSLCertificateChainFile\\s+', '') | default('') }}"
+
+# - name: Debug SSL certificate paths
+#   debug:
+#     msg: |
+#       SSL Certificate File: {{ cert_file_path }}
+#       SSL Key File: {{ key_file_path }}
+#       SSL Chain File: {{ chain_file_path }}
+
+# - name: Create backup directory
+#   file:
+#     path: "{{ cert_file_path | dirname }}/backup_{{ backup_date }}"
+#     state: directory
+
+# - name: Backup existing SSL files
+#   copy:
+#     src: "{{ item }}"
+#     dest: "{{ cert_file_path | dirname }}/backup_{{ backup_date }}/"
+#   with_items:
+#     - "{{ cert_file_path }}"
+#     - "{{ key_file_path }}"
+#     - "{{ chain_file_path }}"
+#   ignore_errors: true
+#   when: item is defined
+
+# - name: Copy new SSL certificate files
+#   copy:
+#     src: "{{ item.src }}"
+#     dest: "{{ item.dest }}"
+#   with_items:
+#     - { src: "{{ src_cert_file }}", dest: "{{ cert_file_path }}" }
+#     - { src: "{{ src_key_file }}", dest: "{{ key_file_path }}" }
+#     - { src: "{{ src_chain_file | default('') }}", dest: "{{ chain_file_path }}" }
+#   when: item.src is defined and item.dest is defined
+
+# - name: Test Apache configuration
+#   command: "apache2ctl configtest"
+#   register: apache_configtest
+#   ignore_errors: true
+
+# - name: Restart Apache if configuration is valid
+#   service:
+#     name: "apache2"
+#     state: restarted
+#   when: apache_configtest.rc == 0
+
+# - name: Restore backup if Apache configuration test fails
+#   block:
+#     - name: Restore SSL files from backup
+#       copy:
+#         src: "{{ cert_file_path | dirname }}/backup_{{ backup_date }}/{{ item | basename }}"
+#         dest: "{{ item }}"
+#       with_items:
+#         - "{{ cert_file_path }}"
+#         - "{{ key_file_path }}"
+#         - "{{ chain_file_path }}"
+
+#     - name: Test Apache configuration after restore
+#       command: "apache2ctl configtest"
+#       register: apache_configtest_restore
+#       ignore_errors: true
+
+#     - name: Restart Apache after restore
+#       service:
+#         name: "apache2"
+#         state: restarted
+#       when: apache_configtest_restore.rc == 0
+#   when: apache_configtest.rc != 0

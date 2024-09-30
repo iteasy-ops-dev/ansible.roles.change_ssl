@@ -1,0 +1,15 @@
+#!/bin/bash
+
+echo "Executing dynamic shell script..."
+
+# Use a Jinja2 variable
+mkdir -p {{ target_directory }}
+
+# Write some content to a file
+echo "{{ file_content }}" > {{ target_directory }}/testfile.txt
+
+# Display the file contents
+cat {{ target_directory }}/testfile.txt
+
+# Clean up
+rm -rf {{ target_directory }}
