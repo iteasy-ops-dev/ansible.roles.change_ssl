@@ -1,3 +1,5 @@
+# ---
+# tasks file for iteasy.ansible.roles.change_ssl
 # - name: Find SSL configuration files for Apache (Debian based)
 #   shell: |
 #     grep -rl "^SSLCertificateFile" /etc/apache2/ | xargs grep -l "{{ domain }}"

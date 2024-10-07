@@ -1,3 +1,5 @@
+---
+# tasks file for iteasy.ansible.roles.change_ssl
 - name: SSL 설정 파일 찾기
   shell: |
     find /etc/httpd -type f -name "*.conf" -exec grep -l "{{ domain_name }}" {} + | xargs grep -l "SSL"
