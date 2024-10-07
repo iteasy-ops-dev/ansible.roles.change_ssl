@@ -9,4 +9,6 @@
 #   when: webserver_type == 'apache'
 
 - name: Include tasks.
-  ansible.builtin.include_tasks: "search.yml"
+  ansible.builtin.include_tasks: "search_domain.yml"
+# - name: Include tasks.
+#   ansible.builtin.include_tasks: "search.yml"
