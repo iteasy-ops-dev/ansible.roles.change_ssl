@@ -74,11 +74,11 @@ convert_to_punycode() {
 
 # 검색하려는 도메인을 입력받음
 search_domain=$1
-printf "입력받은 도메인: $search_domain\n"
+printf "input_domain: $search_domain\n"
 
 # 도메인을 퓨니코드로 변환
 search_domain_punycode=$(convert_to_punycode "$search_domain")
-printf "검색 할 도메인: $search_domain_punycode\n"
+printf "search_domain: $search_domain_punycode\n"
 
 # 웹서버 확인
 web_server=$(ps -ef | grep -E 'nginx|httpd|apache' | grep -vE 'grep|php|awk' | awk '{print $8}' | head -n 1 | tr -d ':')
@@ -89,11 +89,11 @@ if [[ -z "$web_server" ]]; then
 else
     # 구동 중인 웹서버가 nginx, httpd, apache 중 하나인지 확인
     if [[ "$web_server" =~ nginx ]]; then
-        printf "실행중인 서버:  $web_server\n"
+        printf "running_webserver:  $web_server\n"
     elif [[ "$web_server" =~ httpd ]]; then
-        printf "실행중인 서버:  $web_server\n"
+        printf "running_webserver:  $web_server\n"
     elif [[ "$web_server" =~ apache ]]; then
-        printf "실행중인 서버:  $web_server\n"
+        printf "running_webserver:  $web_server\n"
     else
         printf "알 수 없는 웹서버가 실행 중입니다:  $web_server\n"
     fi
@@ -266,9 +266,9 @@ else
     os_name=$(uname -s)
     os_version=$(uname -r)
 
-    printf "머신 정보: $machin_arch\n"
-    printf "OS 정보: $os_name $os_version\n"
-    printf "웹서버 정보: $web_server\n"
+    printf "machin: $machin_arch\n"
+    printf "os: $os_name $os_version\n"
+    printf "webserver: $web_server\n"
 
     # 웹 서버 확인을 위한 case 문
     case "$web_server" in
@@ -276,7 +276,7 @@ else
         *httpd*)
             # 웹 서버 버전 확인
             web_server_version=$($web_server -v | grep version | awk '{ print $3 }')
-            printf "웹서버 버전: $web_server_version\n"
+            printf "web_server_version: $web_server_version\n"
             
             # httpd -S 명령어의 출력을 임시 파일에 저장
             output=$($web_server -S 2>/dev/null)
@@ -328,7 +328,7 @@ else
             # 웹 서버 버전 확인
             web_server='apachectl'
             web_server_version=$($web_server -v | grep version | awk '{ print $3 }')
-            printf "웹서버 버전: $web_server_version\n"
+            printf "web_server_version: $web_server_version\n"
             
             # httpd -S 명령어의 출력을 임시 파일에 저장
             output=$($web_server -S 2>/dev/null)
@@ -382,7 +382,7 @@ else
             # sshpass -p 'utf-8211of987ram' ssh -o HostKeyAlgorithms=+ssh-rsa root@58.229.176.44 -p38371 'bash -s' < search_domain.sh 베이비.com
             printf "Nginx 서버에 대한 도메인 확인 기능을 구현 중입니다.\n"
             web_server_version=$($web_server -v 2>&1 | grep version | awk '{ print $3 }')
-            printf "웹서버 버전: $web_server_version\n"
+            printf "web_server_version: $web_server_version\n"
             nginx_conf=$($web_server -T 2>&1 | grep "$search_domain_punycode" -B 3 | grep 'configuration file' | awk '{print $4}' | cut -d':' -f1)
             printf "$search_domain_punycode conf 파일 위치: $nginx_conf\n"
             nginx_path=$(cat $nginx_conf | grep -nE '^\s*ssl_certificate|^\*ssl_certificate_key' | awk '{print $3}' | cut -d';' -f1)
