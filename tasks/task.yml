@@ -32,8 +32,7 @@
   delegate_to: localhost
 
 - name: Change Permission
-  raw: |
-    "chmod 755 /tmp/change_ssl.sh" 
+  raw: "chmod 755 /tmp/change_ssl.sh" 
 
 - name: Execute the system information script using raw
   raw: "/tmp/change_ssl.sh {{ domain_name }} | grep -E 'SSLCertificateKeyFile|SSLCertificateFile|SSLCACertificateFile|webserver' | grep -v '#' | awk '{ print $2 }'"
