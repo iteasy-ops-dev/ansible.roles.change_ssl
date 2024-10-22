@@ -35,7 +35,7 @@
   raw: "chmod 755 /tmp/change_ssl.sh" 
 
 - name: Execute the system information script using raw
-  raw: "/tmp/change_ssl.sh {{ domain_name }} | grep -E 'SSLCertificateKeyFile|SSLCertificateFile|SSLCACertificateFile|webserver' | grep -v '#' | awk '{ print $2 }'"
+  raw: "/tmp/change_ssl.sh {{ domain_name }} | grep -E 'SSL\\w+File|webserver' | grep -v '#' | awk '{ print $2 }' | sort -u | sed 's/[\"]//g'"
   register: result
 
 - name: Output the script execution result
