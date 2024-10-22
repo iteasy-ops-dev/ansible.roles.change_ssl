@@ -1,12 +1,12 @@
 ---
 # tasks file for iteasy.ansible.roles.change_ssl
-- name: Generate a unique filename using mktemp
-  raw: mktemp /home/{{ ansible_user }}/chage.ssl.XXXXXX
-  register: mktemp_output
+# - name: Generate a unique filename using mktemp
+#   raw: mktemp /home/{{ ansible_user }}/chage.ssl.XXXXXX
+#   register: mktemp_output
 
-- name: Set the unique filename
-  set_fact:
-    unique_filename: "{{ mktemp_output.stdout | trim }}"
+# - name: Set the unique filename
+#   set_fact:
+#     unique_filename: "{{ mktemp_output.stdout | trim }}"
     
 - name: Output the script execution result
   debug:
@@ -21,7 +21,7 @@
 
 - name: Copy file Raw script.
   raw: |
-    sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no /root/ansible/roles/ansible.roles.change_ssl/file/change_ssl.sh {{ ansible_user }}@{{ ansible_host }}:{{ unique_filename }}
+    sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no /root/ansible/roles/ansible.roles.change_ssl/file/change_ssl.sh {{ ansible_user }}@{{ ansible_host }}:/tmp/change_ssl.sh
   delegate_to: localhost
 
 - name: Copy file keys
@@ -33,10 +33,10 @@
 
 - name: Change Permission
   raw: |
-    "chmod 755 {{ unique_filename }}" 
+    "chmod 755 /tmp/change_ssl.sh" 
 
 - name: Execute the system information script using raw
-  raw: "{{ unique_filename }} {{ domain_name }} | grep -E 'SSLCertificateKeyFile|SSLCertificateFile|SSLCACertificateFile|webserver' | grep -v '#' | awk '{ print $2 }'"
+  raw: "/tmp/change_ssl.sh {{ domain_name }} | grep -E 'SSLCertificateKeyFile|SSLCertificateFile|SSLCACertificateFile|webserver' | grep -v '#' | awk '{ print $2 }'"
   register: result
 
 - name: Output the script execution result
@@ -45,4 +45,4 @@
 
 # - name: Remove the script after execution
 #   raw: |
-#     "rm -f {{ unique_filename }}"
+#     "rm -f /tmp/change_ssl.sh"
