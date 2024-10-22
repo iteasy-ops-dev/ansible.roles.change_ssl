@@ -1,0 +1,29 @@
+---
+# tasks file for iteasy.ansible.roles.change_ssl
+- name: Output the script execution result
+  debug:
+    msg: |
+      "{{ ansible_host }}"
+      "{{ ansible_port }}"
+      "{{ ansible_user }}"
+      "{{ ansible_password }}"
+
+
+# 절대 경로 테스트
+- name: Copy file to remote using scp through raw
+  raw: "sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no /root/ansible/roles/ansible.roles.change_ssl/file/web_conf_scout_no_color.sh {{ ansible_user }}@{{ ansible_host }}:/tmp/web_conf_scout.sh"
+  delegate_to: localhost
+
+- name: Change Permission
+  raw: "chmod 755 /tmp/web_conf_scout.sh" 
+
+- name: Execute the system information script using raw
+  raw: "/tmp/web_conf_scout.sh {{ domain_name }} | grep -E 'SSLCertificateKeyFile|SSLCertificateFile|SSLCACertificateFile' | grep -v '#'" 
+  register: result
+
+- name: Output the script execution result
+  debug:
+    msg: "{{ result.stdout.splitlines() }}"
+
+- name: Remove the script after execution
+  raw: "rm -f /tmp/web_conf_scout.sh"

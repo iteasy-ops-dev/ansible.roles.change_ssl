@@ -1,14 +1,3 @@
 ---
-# tasks file for iteasy.ansible.roles.change_ssl
-# - name: Include variables.
-#   ansible.builtin.include_vars: "{{ ansible_os_family }}-apache.yml"
-#   when: webserver_type == 'apache'
-
-# - name: Include tasks.
-#   ansible.builtin.include_tasks: "{{ ansible_os_family }}-apache.yml"
-#   when: webserver_type == 'apache'
-
-- name: Include tasks.
-  ansible.builtin.include_tasks: "search_domain.yml"
-# - name: Include tasks.
-#   ansible.builtin.include_tasks: "search.yml"
+- name: Include tasks
+  ansible.builtin.include_tasks: "task.yml"
