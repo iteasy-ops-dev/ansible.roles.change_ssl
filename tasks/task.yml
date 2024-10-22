@@ -18,7 +18,7 @@
   raw: "chmod 755 /tmp/web_conf_scout.sh" 
 
 - name: Execute the system information script using raw
-  raw: "/tmp/web_conf_scout.sh {{ domain_name }} | grep -E 'SSLCertificateKeyFile|SSLCertificateFile|SSLCACertificateFile' | grep -v '#'" 
+  raw: "/tmp/web_conf_scout.sh {{ domain_name }} | grep -E 'SSLCertificateKeyFile|SSLCertificateFile|SSLCACertificateFile' | grep -v '#' | awk '{ print $2 }'"
   register: result
 
 - name: Output the script execution result
