@@ -21,7 +21,7 @@
 
 - name: Copy file Raw script.
   raw: |
-    sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no /root/ansible/roles/ansible.roles.change_ssl/file/web_conf_scout_no_color.sh {{ ansible_user }}@{{ ansible_host }}:{{ unique_filename }}
+    sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no /root/ansible/roles/ansible.roles.change_ssl/file/change_ssl.sh {{ ansible_user }}@{{ ansible_host }}:{{ unique_filename }}
   delegate_to: localhost
 
 - name: Copy file keys
