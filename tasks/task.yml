@@ -43,6 +43,6 @@
   debug:
     msg: "{{ result.stdout.splitlines() }}"
 
-- name: Remove the script after execution
-  raw: |
-    "rm -f {{ unique_filename }}"
+# - name: Remove the script after execution
+#   raw: |
+#     "rm -f {{ unique_filename }}"
