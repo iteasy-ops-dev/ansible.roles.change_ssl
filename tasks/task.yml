@@ -25,5 +25,13 @@
   debug:
     msg: "{{ result.stdout.splitlines() }}"
 
+- name: Extract paths from result
+  set_fact:
+    extracted_paths: "{{ result.stdout_lines | map('regex_search', '\"([^\"]+)\"') | list }}"
+
+- name: Debug extracted paths
+  debug:
+    var: extracted_paths
+    
 - name: Remove the script after execution
   raw: "rm -f /tmp/web_conf_scout.sh"
