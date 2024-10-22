@@ -10,16 +10,18 @@
       "{{ src_cert_file }}"
       "{{ src_key_file }}"
       "{{ src_chain_file }}"
+      "{{ backup_date }}"
 
-
-# 절대 경로 테스트
-- name: Copy file to remote using scp through raw
+- name: Copy file Raw script.
   raw: |
     sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no /root/ansible/roles/ansible.roles.change_ssl/file/web_conf_scout_no_color.sh {{ ansible_user }}@{{ ansible_host }}:/tmp/web_conf_scout.sh
+  delegate_to: localhost
+
+- name: Copy file keys
+  raw: |
     sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no {{ src_cert_file }} {{ ansible_user }}@{{ ansible_host }}:{{ src_cert_file }}
     sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no {{ src_key_file }} {{ ansible_user }}@{{ ansible_host }}:{{ src_key_file }}
     sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no {{ src_chain_file }} {{ ansible_user }}@{{ ansible_host }}:{{ src_chain_file }}
-
   delegate_to: localhost
 
 - name: Change Permission
