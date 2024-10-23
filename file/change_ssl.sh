@@ -52,13 +52,14 @@ echo "✅ 백업 완료."
 
 # 인증서 대체
 echo "⚙️ 인증서 대체 중..."
+for PEM_FILE in "$NEW_PATH_CRT" "$NEW_PATH_KEY" "$NEW_PATH_CHAIN"; do
+    chown root "$PEM_FILE"
+    chgrp root "$PEM_FILE"
+    echo "소유자 및 그룹을 root로 변경: $PEM_FILE"
+done
 # mv "$NEW_PATH_CRT" "$CURRUNT_PATH_CRT"
 # mv "$NEW_PATH_KEY" "$CURRUNT_PATH_KEY"
 # mv "$NEW_PATH_CHAIN" "$CURRUNT_PATH_CHAIN"
-for PEM_FILE in "$NEW_PATH_CRT" "$NEW_PATH_KEY" "$NEW_PATH_CHAIN"; do
-    chown root "$PEM_FILE"
-    echo "소유자 변경: $PEM_FILE"
-done
 mv "$NEW_PATH_CRT" "$CURRUNT_PATH_CRT.$BACKUP_DATE"
 mv "$NEW_PATH_KEY" "$CURRUNT_PATH_KEY.$BACKUP_DATE"
 mv "$NEW_PATH_CHAIN" "$CURRUNT_PATH_CHAIN.$BACKUP_DATE"
