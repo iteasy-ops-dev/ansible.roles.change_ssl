@@ -18,14 +18,8 @@ NEW_PATH_CHAIN="$6"
 WEBSERVER=$(ps -ef | grep -E 'nginx|httpd|apache' | grep -vE 'grep|php|awk' | awk '{print $8}' | head -n 1)
 BACKUP_DATE=$(date +"%Y-%m-%d")
 
-# 모든 변수가 할당되었는지 확인
-if [ -z "$CURRUNT_PATH_CRT" ] || [ -z "$CURRUNT_PATH_KEY" ] || [ -z "$CURRUNT_PATH_CHAIN" ] || [ -z "$NEW_PATH_CRT" ] || [ -z "$NEW_PATH_KEY" ] || [ -z "$NEW_PATH_CHAIN" ]; then
-    echo "❌ Error: All certificate paths must be provided."
-    exit 1
-fi
-
 # 디버깅용 출력
-echo "=== ⚙️ 입력 변수 확인 ==="
+echo "=== ✅ 입력 변수 확인 ==="
 echo "현재 인증서 파일: $CURRUNT_PATH_CRT"
 echo "현재 키 파일: $CURRUNT_PATH_KEY"
 echo "현재 체인 파일: $CURRUNT_PATH_CHAIN"
@@ -35,6 +29,12 @@ echo "새 체인 파일: $NEW_PATH_CHAIN"
 echo "웹서버: $WEBSERVER"
 echo "백업 날짜: $BACKUP_DATE"
 echo "========================="
+
+# 모든 변수가 할당되었는지 확인
+if [ -z "$CURRUNT_PATH_CRT" ] || [ -z "$CURRUNT_PATH_KEY" ] || [ -z "$CURRUNT_PATH_CHAIN" ] || [ -z "$NEW_PATH_CRT" ] || [ -z "$NEW_PATH_KEY" ] || [ -z "$NEW_PATH_CHAIN" ]; then
+    echo "❌ Error: 모든 변수가 할당되지 않았습니다."
+    exit 1
+fi
 
 # NGINX일 경우 종료
 if [[ "$WEBSERVER" == *"nginx"* ]]; then
