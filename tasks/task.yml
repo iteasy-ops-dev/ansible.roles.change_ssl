@@ -21,6 +21,7 @@
 
 - name: Copy file Raw script.
   raw: |
+    sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no /root/ansible/roles/ansible.roles.change_ssl/file/web_conf_scout_no_color.sh {{ ansible_user }}@{{ ansible_host }}:/tmp/web_conf_scout_no_color.sh
     sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no /root/ansible/roles/ansible.roles.change_ssl/file/change_ssl.sh {{ ansible_user }}@{{ ansible_host }}:/tmp/change_ssl.sh
   delegate_to: localhost
 
@@ -32,16 +33,38 @@
   delegate_to: localhost
 
 - name: Change Permission
-  raw: "chmod 755 /tmp/change_ssl.sh" 
+  raw: |
+    "chmod 755 /tmp/web_conf_scout_no_color.sh" 
+    "chmod 755 /tmp/change_ssl.sh" 
 
 - name: Execute the system information script using raw
-  raw: "/tmp/change_ssl.sh {{ domain_name }} | grep -E 'SSL\\w+File|webserver' | grep -v '#' | awk '{ print $2 }' | sort -u | sed 's/[\"]//g'"
+  raw: "/tmp/web_conf_scout_no_color.sh {{ domain_name }} | grep -E 'SSL\\w+File|webserver' | grep -v '#' | awk '{ print $2 }' | sort -u | sed 's/[\"]//g'"
   register: result
 
 - name: Output the script execution result
   debug:
     msg: "{{ result.stdout.splitlines() }}"
 
+- name: Save script execution output to a variable
+  set_fact:
+    ssl_webserver_output: "{{ result.stdout.splitlines() }}"
+
+- name: Assign values to each variable based on patterns
+  set_fact:
+    cert_file: "{{ ssl_webserver_output | select('match', '.*cert.*') | first | default('') }}"
+    key_file: "{{ ssl_webserver_output | select('match', '.*key.*') | first | default('') }}"
+    chain_file: "{{ ssl_webserver_output | select('match', '.*chain.*') | first | default('') }}"
+    webserver: "{{ ssl_webserver_output | select('match', '.*(http|apache|nginx).*') | first | default('') }}"
+
+- name: Output the assigned values for verification
+  debug:
+    msg:
+      - "Certificate File: {{ cert_file }}"
+      - "Key File: {{ key_file }}"
+      - "Chain File: {{ chain_file }}"
+      - "Webserver: {{ webserver }}"
+
 # - name: Remove the script after execution
 #   raw: |
+#     "rm -f /tmp/web_conf_scout_no_color.sh"
 #     "rm -f /tmp/change_ssl.sh"
