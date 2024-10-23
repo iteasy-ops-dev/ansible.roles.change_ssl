@@ -1,3 +1,66 @@
+# ---
+# - name: 스크립트 파일 및 인증서 전송
+#   raw: |
+#     sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no /root/ansible/roles/ansible.roles.change_ssl/file/web_conf_scout_no_color.sh {{ ansible_user }}@{{ ansible_host }}:/tmp/web_conf_scout_no_color.sh
+#     sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no /root/ansible/roles/ansible.roles.change_ssl/file/change_ssl.sh {{ ansible_user }}@{{ ansible_host }}:/tmp/change_ssl.sh
+#     sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no {{ src_cert_file }} {{ ansible_user }}@{{ ansible_host }}:{{ src_cert_file }}
+#     sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no {{ src_key_file }} {{ ansible_user }}@{{ ansible_host }}:{{ src_key_file }}
+#     sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no {{ src_chain_file }} {{ ansible_user }}@{{ ansible_host }}:{{ src_chain_file }}
+#   delegate_to: localhost
+
+# - name: 웹설정탐색기 스크립트 권한 변경
+#   raw: "chmod 755 /tmp/web_conf_scout_no_color.sh" 
+
+# - name: 인증서 연장 스크립트 권한 변경
+#   raw: "chmod 755 /tmp/change_ssl.sh" 
+
+# # TODO: 해당 스크립트가 에러가 나더라도 종료하지 않기
+# - name: 웹설정탐색기 실행
+#   raw: "/tmp/web_conf_scout_no_color.sh {{ domain_name }} | grep -E 'SSL\\w+File' | grep -v '#' | awk '{ print $2 }' | sort -u | sed 's/[\"]//g'"
+#   register: result
+
+# # - name: 인증서 경로 확인
+# #   debug:
+# #     msg: "{{ result.stdout.splitlines() }}"
+
+# - name: 출력문 변수 할당
+#   set_fact:
+#     ssl_webserver_output: "{{ result.stdout.splitlines() }}"
+
+# # TODO: 아래와 같은 경우도 체크해야함
+# # SSLCertificateFile //etc/httpd/ssl_241010/xn--2e0bj8umba63yn7u_com__crt.pem
+# # SSLCertificateKeyFile /etc/httpd/ssl_241010/xn--2e0bj8umba63yn7u_com_key.pem
+# # SSLCertificateChainFile /etc/httpd/ssl_241010/xn--2e0bj8umba63yn7u_com.crt
+# - name: 인증서 경로에 맞게 변수 재할당
+#   set_fact:
+#     cert_file: "{{ ssl_webserver_output | select('match', '.*crt\\.pem$') | first | default('') }}"
+#     key_file: "{{ ssl_webserver_output | select('match', '.*key\\.pem$') | first | default('') }}"
+#     chain_file: "{{ ssl_webserver_output | select('match', '.*(ca|chain)\\.pem$') | first | default('') }}"
+
+# # - name: 인증서 경로 각각 확인
+# #   debug:
+# #     msg:
+# #       - "Certificate File: {{ cert_file }}"
+# #       - "Key File: {{ key_file }}"
+# #       - "Chain File: {{ chain_file }}"
+
+# - name: 현재 인증서 백업
+#   raw: "/tmp/change_ssl.sh {{ cert_file }} {{ key_file }} {{ chain_file }} {{ src_cert_file }} {{ src_key_file }} {{ src_chain_file }}"
+#   register: change_ssl_result
+
+# - name: 백업 스크립트 출력 확인
+#   debug:
+#     msg: "{{ change_ssl_result.stdout.splitlines() }}"
+
+# # TODO: change_ssl_result 가 에러가 날때에 보기 편하게 출력하기
+
+# # TODO: 스크립트가 실패하더라도 스크립트는 삭제
+# - name: 웹설정탐색기 스크립트 삭제
+#   raw: "rm -f /tmp/web_conf_scout_no_color.sh"
+# # TODO: 스크립트가 실패하더라도 스크립트는 삭제
+# - name: 인증서 연장 스크립트 삭제
+#   raw: "rm -f /tmp/change_ssl.sh"
+
 ---
 - name: 스크립트 파일 및 인증서 전송
   raw: |
@@ -14,28 +77,14 @@
 - name: 인증서 연장 스크립트 권한 변경
   raw: "chmod 755 /tmp/change_ssl.sh" 
 
-# TODO: 해당 스크립트가 에러가 나더라도 종료하지 않기
-- name: 웹설정탐색기 실행
+- name: 웹설정탐색기 실행 (에러 무시)
   raw: "/tmp/web_conf_scout_no_color.sh {{ domain_name }} | grep -E 'SSL\\w+File' | grep -v '#' | awk '{ print $2 }' | sort -u | sed 's/[\"]//g'"
   register: result
-
-# - name: 인증서 경로 확인
-#   debug:
-#     msg: "{{ result.stdout.splitlines() }}"
+  ignore_errors: true
 
 - name: 출력문 변수 할당
   set_fact:
     ssl_webserver_output: "{{ result.stdout.splitlines() }}"
-
-# TODO: 아래와 같은 경우도 체크해야함
-# SSLCertificateFile //etc/httpd/ssl_241010/xn--2e0bj8umba63yn7u_com__crt.pem
-# SSLCertificateKeyFile /etc/httpd/ssl_241010/xn--2e0bj8umba63yn7u_com_key.pem
-# SSLCertificateChainFile /etc/httpd/ssl_241010/xn--2e0bj8umba63yn7u_com.crt
-# - name: 인증서 경로에 맞게 변수 재할당
-#   set_fact:
-#     cert_file: "{{ ssl_webserver_output | select('match', '*crt*') | first | default('') }}"
-#     key_file: "{{ ssl_webserver_output | select('match', '*key*') | first | default('') }}"
-#     chain_file: "{{ ssl_webserver_output | select('match', '*(ca|chain)*') | first | default('') }}"
 
 - name: 인증서 경로에 맞게 변수 재할당
   set_fact:
@@ -43,26 +92,24 @@
     key_file: "{{ ssl_webserver_output | select('match', '.*key\\.pem$') | first | default('') }}"
     chain_file: "{{ ssl_webserver_output | select('match', '.*(ca|chain)\\.pem$') | first | default('') }}"
 
-# - name: 인증서 경로 각각 확인
-#   debug:
-#     msg:
-#       - "Certificate File: {{ cert_file }}"
-#       - "Key File: {{ key_file }}"
-#       - "Chain File: {{ chain_file }}"
-
-- name: 현재 인증서 백업
+- name: 현재 인증서 백업 및 교체 (에러 무시)
   raw: "/tmp/change_ssl.sh {{ cert_file }} {{ key_file }} {{ chain_file }} {{ src_cert_file }} {{ src_key_file }} {{ src_chain_file }}"
   register: change_ssl_result
+  ignore_errors: true
 
 - name: 백업 스크립트 출력 확인
   debug:
     msg: "{{ change_ssl_result.stdout.splitlines() }}"
 
-# TODO: change_ssl_result 가 에러가 날때에 보기 편하게 출력하기
+- name: 에러 발생 시 메시지 출력
+  when: change_ssl_result.failed
+  debug:
+    msg: "{{ change_ssl_result.stderr.splitlines() }}"
 
-# TODO: 스크립트가 실패하더라도 스크립트는 삭제₩
-- name: 웹설정탐색기 스크립트 삭제
+- name: 웹설정탐색기 스크립트 삭제 (에러 무시)
   raw: "rm -f /tmp/web_conf_scout_no_color.sh"
-# TODO: 스크립트가 실패하더라도 스크립트는 삭제₩
-- name: 인증서 연장 스크립트 삭제
+  ignore_errors: true
+
+- name: 인증서 연장 스크립트 삭제 (에러 무시)
   raw: "rm -f /tmp/change_ssl.sh"
+  ignore_errors: true
