@@ -32,7 +32,7 @@ echo "========================="
 
 # 모든 변수가 할당되었는지 확인
 if [ -z "$CURRUNT_PATH_CRT" ] || [ -z "$CURRUNT_PATH_KEY" ] || [ -z "$CURRUNT_PATH_CHAIN" ] || [ -z "$NEW_PATH_CRT" ] || [ -z "$NEW_PATH_KEY" ] || [ -z "$NEW_PATH_CHAIN" ]; then
-    echo "❌ Error: 모든 변수가 할당되지 않았습니다."
+    echo "❌ Error: 모든 변수가 할당되지 않았습니다. 비어있는 변수를 확인하세요."
     exit 1
 fi
 
