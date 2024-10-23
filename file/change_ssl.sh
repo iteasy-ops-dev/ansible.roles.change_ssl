@@ -74,9 +74,12 @@ for PEM_FILE in "$NEW_PATH_CRT" "$NEW_PATH_KEY" "$NEW_PATH_CHAIN"; do
     chgrp root "$PEM_FILE"
     echo "소유자 및 그룹을 root로 변경: $PEM_FILE"
 done
+# TODO: ** 테스트 중이므로 실제 변경은 추후에.
 # mv "$NEW_PATH_CRT" "$CURRUNT_PATH_CRT"
 # mv "$NEW_PATH_KEY" "$CURRUNT_PATH_KEY"
 # mv "$NEW_PATH_CHAIN" "$CURRUNT_PATH_CHAIN"
+
+# TODO: 테스트 중: 전송된 파일을 해당 백업폴더로 이동
 mv "$NEW_PATH_CRT" "$CURRUNT_PATH_CRT.$BACKUP_DATE"
 mv "$NEW_PATH_KEY" "$CURRUNT_PATH_KEY.$BACKUP_DATE"
 mv "$NEW_PATH_CHAIN" "$CURRUNT_PATH_CHAIN.$BACKUP_DATE"
@@ -90,6 +93,7 @@ if $WEBSERVER -t; then
     echo "✅ Apache 설정에 문제가 없습니다."
     if [ "$IS_RESTART" -eq 1 ]; then # 0: false, 1: true
         echo "Apache를 재시작합니다."
+        # TODO: 테스트 중. 분기가 제대로 이뤄지는지 확인
         # $WEBSERVER -k graceful
         echo "✅ Apache 재시작 완료."
     else
