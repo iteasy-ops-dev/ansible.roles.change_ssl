@@ -14,13 +14,22 @@ PATH_KEY="$3"
 PATH_CHAIN="$4"
 BACKUP_DATE=$(date +"%Y-%m-%d")
 
+# 모든 변수가 할당되었는지 확인
+if [ -z "$WEBSERVER" ] || [ -z "$PATH_CRT" ] || [ -z "$PATH_KEY" ] || [ -z "$PATH_CHAIN" ]; then
+    echo "Error: All variables (WEBSERVER, PATH_CRT, PATH_KEY, PATH_CHAIN) must be provided."
+    exit 1
+fi
+
+# PEM 파일 배열 선언
 PEM_FILES=(
     $PATH_CRT
     $PATH_KEY
     $PATH_CHAIN
 )
 
+# PEM 파일 백업
 for PEM_FILE in "${PEM_FILES[@]}"; do
-    cp $PEM_FILE $PEM_FILE.$BACKUP_DATE
+    cp "$PEM_FILE" "$PEM_FILE.$BACKUP_DATE"
 done
 
+echo "Backup completed for all PEM files."

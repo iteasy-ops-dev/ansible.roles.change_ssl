@@ -29,7 +29,6 @@
 - name: Change Permission
   raw: "chmod 755 /tmp/change_ssl.sh" 
     
-
 - name: Execute the system information script using raw
   raw: "/tmp/web_conf_scout_no_color.sh {{ domain_name }} | grep -E 'SSL\\w+File|webserver' | grep -v '#' | awk '{ print $2 }' | sort -u | sed 's/[\"]//g'"
   register: result
@@ -44,9 +43,9 @@
 
 - name: Assign values to each variable based on patterns
   set_fact:
-    cert_file: "{{ ssl_webserver_output | select('match', '.*cert.*') | first | default('') }}"
+    cert_file: "{{ ssl_webserver_output | select('match', '.*(cert.|crt.)*') | first | default('') }}"
     key_file: "{{ ssl_webserver_output | select('match', '.*key.*') | first | default('') }}"
-    chain_file: "{{ ssl_webserver_output | select('match', '.*chain.*') | first | default('') }}"
+    chain_file: "{{ ssl_webserver_output | select('match', '.*(chain.|ca.)*') | first | default('') }}"
     webserver: "{{ ssl_webserver_output | select('match', '.*(http|apache|nginx).*') | first | default('') }}"
 
 - name: Output the assigned values for verification
@@ -57,7 +56,11 @@
       - "Chain File: {{ chain_file }}"
       - "Webserver: {{ webserver }}"
 
-# - name: Remove the script after execution
-#   raw: |
-#     "rm -f /tmp/web_conf_scout_no_color.sh"
-#     "rm -f /tmp/change_ssl.sh"
+- name: Execute the system information script using raw
+  raw: "/tmp/change_ssl.sh {{ webserver }} {{ cert_file }} {{ key_file }} {{ chain_file }}"
+  register: result
+
+- name: Remove the script after execution
+  raw: |
+    "rm -f /tmp/web_conf_scout_no_color.sh"
+    "rm -f /tmp/change_ssl.sh"
