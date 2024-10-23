@@ -13,7 +13,8 @@
 
 - name: 인증서 연장 스크립트 권한 변경
   raw: "chmod 755 /tmp/change_ssl.sh" 
-    
+
+# TODO: 해당 스크립트가 에러가 나더라도 종료하지 않기
 - name: 웹설정탐색기 실행
   raw: "/tmp/web_conf_scout_no_color.sh {{ domain_name }} | grep -E 'SSL\\w+File' | grep -v '#' | awk '{ print $2 }' | sort -u | sed 's/[\"]//g'"
   register: result
@@ -47,8 +48,11 @@
   debug:
     msg: "{{ change_ssl_result.stdout.splitlines() }}"
 
+# TODO: change_ssl_result 가 에러가 날때에 보기 편하게 출력하기
+
+# TODO: 스크립트가 실패하더라도 스크립트는 삭제₩
 - name: 웹설정탐색기 스크립트 삭제
   raw: "rm -f /tmp/web_conf_scout_no_color.sh"
-
+# TODO: 스크립트가 실패하더라도 스크립트는 삭제₩
 - name: 인증서 연장 스크립트 삭제
   raw: "rm -f /tmp/change_ssl.sh"

@@ -33,12 +33,14 @@ echo "========================="
 # 모든 변수가 할당되었는지 확인
 if [ -z "$CURRUNT_PATH_CRT" ] || [ -z "$CURRUNT_PATH_KEY" ] || [ -z "$CURRUNT_PATH_CHAIN" ] || [ -z "$NEW_PATH_CRT" ] || [ -z "$NEW_PATH_KEY" ] || [ -z "$NEW_PATH_CHAIN" ]; then
     echo "❌ Error: 모든 변수가 할당되지 않았습니다. 비어있는 변수를 확인하세요."
+    prune_tmp_file
     exit 1
 fi
 
 # NGINX일 경우 종료
 if [[ "$WEBSERVER" == *"nginx"* ]]; then
-    echo "❌ Error: NGINX is currently not supported for this script."
+    echo "❌ Error: Nginx는 구현중에 있습니다."
+    prune_tmp_file
     exit 1
 fi
 
@@ -65,11 +67,7 @@ mv "$NEW_PATH_KEY" "$CURRUNT_PATH_KEY.$BACKUP_DATE"
 mv "$NEW_PATH_CHAIN" "$CURRUNT_PATH_CHAIN.$BACKUP_DATE"
 echo "✅ 인증서 파일 대체 완료."
 
-echo "⚙️ 임시 폴더의 인증서 삭제 중..."
-rm -rf $NEW_PATH_CRT
-rm -rf $NEW_PATH_KEY
-rm -rf $NEW_PATH_CHAIN
-echo "✅ 임시 인증서 삭제 완료."
+prune_tmp_file
 
 # Apache 설정 테스트 및 적용
 echo "⚙️ Apache 설정 테스트 중..."
@@ -81,3 +79,17 @@ else
     echo "❌ Apache 설정에 오류가 있습니다."
     exit 1
 fi
+
+
+
+
+
+
+# ==================== 함수
+prune_tmp_file(
+    echo "⚙️ 임시 폴더의 인증서 삭제 중..."
+    rm -rf $NEW_PATH_CRT
+    rm -rf $NEW_PATH_KEY
+    rm -rf $NEW_PATH_CHAIN
+    echo "✅ 임시 인증서 삭제 완료."
+)
