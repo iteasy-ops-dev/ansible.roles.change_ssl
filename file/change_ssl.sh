@@ -30,6 +30,16 @@ echo "웹서버: $WEBSERVER"
 echo "백업 날짜: $BACKUP_DATE"
 echo "========================="
 
+# ==================== 함수
+prune_tmp_file(
+    echo "⚙️ 임시 폴더의 인증서 삭제 중..."
+    rm -rf $NEW_PATH_CRT
+    rm -rf $NEW_PATH_KEY
+    rm -rf $NEW_PATH_CHAIN
+    echo "✅ 임시 인증서 삭제 완료."
+)
+# ==================== 함수
+
 # 모든 변수가 할당되었는지 확인
 if [ -z "$CURRUNT_PATH_CRT" ] || [ -z "$CURRUNT_PATH_KEY" ] || [ -z "$CURRUNT_PATH_CHAIN" ] || [ -z "$NEW_PATH_CRT" ] || [ -z "$NEW_PATH_KEY" ] || [ -z "$NEW_PATH_CHAIN" ]; then
     echo "❌ Error: 모든 변수가 할당되지 않았습니다. 비어있는 변수를 확인하세요."
@@ -79,17 +89,3 @@ else
     echo "❌ Apache 설정에 오류가 있습니다."
     exit 1
 fi
-
-
-
-
-
-
-# ==================== 함수
-prune_tmp_file(
-    echo "⚙️ 임시 폴더의 인증서 삭제 중..."
-    rm -rf $NEW_PATH_CRT
-    rm -rf $NEW_PATH_KEY
-    rm -rf $NEW_PATH_CHAIN
-    echo "✅ 임시 인증서 삭제 완료."
-)
