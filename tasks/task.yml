@@ -1,13 +1,4 @@
 ---
-# tasks file for iteasy.ansible.roles.change_ssl
-# - name: Generate a unique filename using mktemp
-#   raw: mktemp /home/{{ ansible_user }}/chage.ssl.XXXXXX
-#   register: mktemp_output
-
-# - name: Set the unique filename
-#   set_fact:
-#     unique_filename: "{{ mktemp_output.stdout | trim }}"
-    
 - name: Output the script execution result
   debug:
     msg: |
