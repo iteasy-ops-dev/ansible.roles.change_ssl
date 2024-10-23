@@ -24,9 +24,11 @@
   delegate_to: localhost
 
 - name: Change Permission
-  raw: |
-    "chmod 755 /tmp/web_conf_scout_no_color.sh" 
-    "chmod 755 /tmp/change_ssl.sh" 
+  raw: "chmod 755 /tmp/web_conf_scout_no_color.sh" 
+
+- name: Change Permission
+  raw: "chmod 755 /tmp/change_ssl.sh" 
+    
 
 - name: Execute the system information script using raw
   raw: "/tmp/web_conf_scout_no_color.sh {{ domain_name }} | grep -E 'SSL\\w+File|webserver' | grep -v '#' | awk '{ print $2 }' | sort -u | sed 's/[\"]//g'"
