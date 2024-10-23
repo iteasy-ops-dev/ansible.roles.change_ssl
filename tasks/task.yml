@@ -43,17 +43,17 @@
 
 # - name: Assign values to each variable based on patterns
 #   set_fact:
-#     cert_file: "{{ ssl_webserver_output | select('match', '.*(cert.|crt.)*') | first | default('') }}"
+#     cert_file: "{{ ssl_webserver_output | select('match', '.*(cert|crt)*') | first | default('') }}"
 #     key_file: "{{ ssl_webserver_output | select('match', '.*key.*') | first | default('') }}"
-#     chain_file: "{{ ssl_webserver_output | select('match', '.*(chain.|ca.)*') | first | default('') }}"
-#     webserver: "{{ ssl_webserver_output | select('match', '.*(http|apache|nginx).*') | first | default('') }}"
+#     chain_file: "{{ ssl_webserver_output | select('match', '.*(chain|ca)*') | first | default('') }}"
+#     webserver: "{{ ssl_webserver_output | select('match', '.*(httpd|apache|nginx).*') | first | default('') }}"
 
 - name: Assign values to each variable based on patterns
   set_fact:
-    cert_file: "{{ ssl_webserver_output | select('match', '.*\\.(crt|cert)\\.pem$') | first | default('') }}"
-    key_file: "{{ ssl_webserver_output | select('match', '.*key.*\\.pem$') | first | default('') }}"
-    chain_file: "{{ ssl_webserver_output | select('match', '.*\\.(chain|ca)\\.pem$') | first | default('') }}"
-    webserver: "{{ ssl_webserver_output | select('match', '.*(http|apache|nginx).*') | first | default('') }}"
+    cert_file: "{{ ssl_webserver_output | select('match', '.*crt\\.pem$') | first | default('') }}"
+    key_file: "{{ ssl_webserver_output | select('match', '.*key\\.pem$') | first | default('') }}"
+    chain_file: "{{ ssl_webserver_output | select('match', '.*(ca|chain)\\.pem$') | first | default('') }}"
+    webserver: "{{ ssl_webserver_output | select('match', '.*(httpd|apache|nginx).*') | first | default('') }}"
 
 
 - name: Output the assigned values for verification
