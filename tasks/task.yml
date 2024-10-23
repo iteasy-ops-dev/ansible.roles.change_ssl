@@ -31,17 +31,17 @@
 # SSLCertificateFile //etc/httpd/ssl_241010/xn--2e0bj8umba63yn7u_com__crt.pem
 # SSLCertificateKeyFile /etc/httpd/ssl_241010/xn--2e0bj8umba63yn7u_com_key.pem
 # SSLCertificateChainFile /etc/httpd/ssl_241010/xn--2e0bj8umba63yn7u_com.crt
-- name: 인증서 경로에 맞게 변수 재할당
-  set_fact:
-    cert_file: "{{ ssl_webserver_output | select('match', '*crt*') | first | default('') }}"
-    key_file: "{{ ssl_webserver_output | select('match', '*key*') | first | default('') }}"
-    chain_file: "{{ ssl_webserver_output | select('match', '*(ca|chain)*') | first | default('') }}"
-
 # - name: 인증서 경로에 맞게 변수 재할당
 #   set_fact:
-#     cert_file: "{{ ssl_webserver_output | select('match', '.*crt\\.pem$') | first | default('') }}"
-#     key_file: "{{ ssl_webserver_output | select('match', '.*key\\.pem$') | first | default('') }}"
-#     chain_file: "{{ ssl_webserver_output | select('match', '.*(ca|chain)\\.pem$') | first | default('') }}"
+#     cert_file: "{{ ssl_webserver_output | select('match', '*crt*') | first | default('') }}"
+#     key_file: "{{ ssl_webserver_output | select('match', '*key*') | first | default('') }}"
+#     chain_file: "{{ ssl_webserver_output | select('match', '*(ca|chain)*') | first | default('') }}"
+
+- name: 인증서 경로에 맞게 변수 재할당
+  set_fact:
+    cert_file: "{{ ssl_webserver_output | select('match', '.*crt\\.pem$') | first | default('') }}"
+    key_file: "{{ ssl_webserver_output | select('match', '.*key\\.pem$') | first | default('') }}"
+    chain_file: "{{ ssl_webserver_output | select('match', '.*(ca|chain)\\.pem$') | first | default('') }}"
 
 # - name: 인증서 경로 각각 확인
 #   debug:
