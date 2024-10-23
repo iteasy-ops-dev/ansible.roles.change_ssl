@@ -51,19 +51,28 @@ done
 echo "✅ 백업 완료."
 
 # 인증서 대체
-# echo "⚙️ 인증서 대체 중..."
+echo "⚙️ 인증서 대체 중..."
 # mv "$NEW_PATH_CRT" "$CURRUNT_PATH_CRT"
 # mv "$NEW_PATH_KEY" "$CURRUNT_PATH_KEY"
 # mv "$NEW_PATH_CHAIN" "$CURRUNT_PATH_CHAIN"
-# echo "✅ 인증서 파일 대체 완료."
+mv "$NEW_PATH_CRT" "$CURRUNT_PATH_CRT.$BACKUP_DATE"
+mv "$NEW_PATH_KEY" "$CURRUNT_PATH_KEY.$BACKUP_DATE"
+mv "$NEW_PATH_CHAIN" "$CURRUNT_PATH_CHAIN.$BACKUP_DATE"
+echo "✅ 인증서 파일 대체 완료."
+
+echo "⚙️ 임시 폴더의 인증서 삭제 중..."
+rm -rf $NEW_PATH_CRT
+rm -rf $NEW_PATH_KEY
+rm -rf $NEW_PATH_CHAIN
+echo "✅ 임시 인증서 삭제 완료."
 
 # Apache 설정 테스트 및 적용
-# echo "⚙️ Apache 설정 테스트 중..."
-# if $WEBSERVER -t; then
-#     echo "✅ Apache 설정에 문제가 없습니다. Apache를 재시작합니다."
-#     $WEBSERVER -k graceful
-#     echo "✅ 인증서 연장 완료."
-# else
-#     echo "❌ Apache 설정에 오류가 있습니다."
-#     exit 1
-# fi
+echo "⚙️ Apache 설정 테스트 중..."
+if $WEBSERVER -t; then
+    echo "✅ Apache 설정에 문제가 없습니다. Apache를 재시작합니다."
+    # $WEBSERVER -k graceful
+    echo "✅ 인증서 연장 완료."
+else
+    echo "❌ Apache 설정에 오류가 있습니다."
+    exit 1
+fi
