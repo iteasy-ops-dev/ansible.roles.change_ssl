@@ -33,8 +33,8 @@
 # SSLCertificateChainFile /etc/httpd/ssl_241010/xn--2e0bj8umba63yn7u_com.crt
 - name: 인증서 경로에 맞게 변수 재할당
   set_fact:
-    cert_file: "{{ ssl_webserver_output | select('match', '.*crt*') | first | default('') }}"
-    key_file: "{{ ssl_webserver_output | select('match', '.*key*') | first | default('') }}"
+    cert_file: "{{ ssl_webserver_output | select('match', '*crt*') | first | default('') }}"
+    key_file: "{{ ssl_webserver_output | select('match', '*key*') | first | default('') }}"
     chain_file: "{{ ssl_webserver_output | select('match', '*(ca|chain)*') | first | default('') }}"
 
 # - name: 인증서 경로에 맞게 변수 재할당
