@@ -1,74 +1,55 @@
 ---
-- name: Output the script execution result
-  debug:
-    msg: |
-      "{{ ansible_host }}"
-      "{{ ansible_port }}"
-      "{{ ansible_user }}"
-      "{{ ansible_password }}"
-      "{{ src_cert_file }}"
-      "{{ src_key_file }}"
-      "{{ src_chain_file }}"
-
-- name: Copy file Raw script.
+- name: 스크립트 파일 전송
   raw: |
     sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no /root/ansible/roles/ansible.roles.change_ssl/file/web_conf_scout_no_color.sh {{ ansible_user }}@{{ ansible_host }}:/tmp/web_conf_scout_no_color.sh
     sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no /root/ansible/roles/ansible.roles.change_ssl/file/change_ssl.sh {{ ansible_user }}@{{ ansible_host }}:/tmp/change_ssl.sh
   delegate_to: localhost
 
-- name: Copy file keys
-  raw: |
-    sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no {{ src_cert_file }} {{ ansible_user }}@{{ ansible_host }}:{{ src_cert_file }}
-    sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no {{ src_key_file }} {{ ansible_user }}@{{ ansible_host }}:{{ src_key_file }}
-    sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no {{ src_chain_file }} {{ ansible_user }}@{{ ansible_host }}:{{ src_chain_file }}
-  delegate_to: localhost
-
-- name: Change Permission
+- name: 웹설정탐색기 스크립트 권한 변경
   raw: "chmod 755 /tmp/web_conf_scout_no_color.sh" 
 
-- name: Change Permission
+- name: 인증서 연장 스크립트 권한 변경
   raw: "chmod 755 /tmp/change_ssl.sh" 
     
-- name: Execute the system information script using raw
-  raw: "/tmp/web_conf_scout_no_color.sh {{ domain_name }} | grep -E 'SSL\\w+File|webserver' | grep -v '#' | awk '{ print $2 }' | sort -u | sed 's/[\"]//g'"
+- name: 웹설정탐색기 실행
+  raw: "/tmp/web_conf_scout_no_color.sh {{ domain_name }} | grep -E 'SSL\\w+File' | grep -v '#' | awk '{ print $2 }' | sort -u | sed 's/[\"]//g'"
   register: result
 
-- name: Output the script execution result
+- name: 인증서 경로 확인
   debug:
     msg: "{{ result.stdout.splitlines() }}"
 
-- name: Save script execution output to a variable
+- name: 출력문 변수 할당
   set_fact:
     ssl_webserver_output: "{{ result.stdout.splitlines() }}"
 
-# - name: Assign values to each variable based on patterns
-#   set_fact:
-#     cert_file: "{{ ssl_webserver_output | select('match', '.*(cert|crt)*') | first | default('') }}"
-#     key_file: "{{ ssl_webserver_output | select('match', '.*key.*') | first | default('') }}"
-#     chain_file: "{{ ssl_webserver_output | select('match', '.*(chain|ca)*') | first | default('') }}"
-#     webserver: "{{ ssl_webserver_output | select('match', '.*(httpd|apache|nginx).*') | first | default('') }}"
-
-- name: Assign values to each variable based on patterns
+- name: 인증서 경로에 맞게 변수 재할당
   set_fact:
     cert_file: "{{ ssl_webserver_output | select('match', '.*crt\\.pem$') | first | default('') }}"
     key_file: "{{ ssl_webserver_output | select('match', '.*key\\.pem$') | first | default('') }}"
     chain_file: "{{ ssl_webserver_output | select('match', '.*(ca|chain)\\.pem$') | first | default('') }}"
-    webserver: "{{ ssl_webserver_output | select('match', '.*(httpd|apache|nginx).*') | first | default('') }}"
 
-
-- name: Output the assigned values for verification
+- name: 인증서 경로 각각 확인
   debug:
     msg:
       - "Certificate File: {{ cert_file }}"
       - "Key File: {{ key_file }}"
       - "Chain File: {{ chain_file }}"
-      - "Webserver: {{ webserver }}"
 
-- name: Execute the system information script using raw
-  raw: "/tmp/change_ssl.sh {{ webserver }} {{ cert_file }} {{ key_file }} {{ chain_file }}"
-  register: result
+- name: 현재 인증서 백업
+  raw: "/tmp/change_ssl.sh {{ cert_file }} {{ key_file }} {{ chain_file }}"
+  # register: result
 
-- name: Remove the script after execution
-  raw: |
-    "rm -f /tmp/web_conf_scout_no_color.sh"
-    "rm -f /tmp/change_ssl.sh"
+# 뒤에서 할당한 변수로 해당 수정해야함
+# - name: 인증서 대체
+#   raw: |
+#     sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no {{ src_cert_file }} {{ ansible_user }}@{{ ansible_host }}:{{ src_cert_file }}
+#     sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no {{ src_key_file }} {{ ansible_user }}@{{ ansible_host }}:{{ src_key_file }}
+#     sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no {{ src_chain_file }} {{ ansible_user }}@{{ ansible_host }}:{{ src_chain_file }}
+#   delegate_to: localhost
+
+- name: 웹설정탐색기 스크립트 삭제
+  raw: "rm -f /tmp/web_conf_scout_no_color.sh"
+
+- name: 인증서 연장 스크립트 삭제
+  raw: "rm -f /tmp/change_ssl.sh"
