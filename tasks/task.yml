@@ -15,9 +15,9 @@
   raw: "/tmp/web_conf_scout_no_color.sh {{ domain_name }} | grep -E 'SSL\\w+File' | grep -v '#' | awk '{ print $2 }' | sort -u | sed 's/[\"]//g'"
   register: result
 
-- name: 인증서 경로 확인
-  debug:
-    msg: "{{ result.stdout.splitlines() }}"
+# - name: 인증서 경로 확인
+#   debug:
+#     msg: "{{ result.stdout.splitlines() }}"
 
 - name: 출력문 변수 할당
   set_fact:
@@ -29,16 +29,20 @@
     key_file: "{{ ssl_webserver_output | select('match', '.*key\\.pem$') | first | default('') }}"
     chain_file: "{{ ssl_webserver_output | select('match', '.*(ca|chain)\\.pem$') | first | default('') }}"
 
-- name: 인증서 경로 각각 확인
-  debug:
-    msg:
-      - "Certificate File: {{ cert_file }}"
-      - "Key File: {{ key_file }}"
-      - "Chain File: {{ chain_file }}"
+# - name: 인증서 경로 각각 확인
+#   debug:
+#     msg:
+#       - "Certificate File: {{ cert_file }}"
+#       - "Key File: {{ key_file }}"
+#       - "Chain File: {{ chain_file }}"
 
 - name: 현재 인증서 백업
   raw: "/tmp/change_ssl.sh {{ cert_file }} {{ key_file }} {{ chain_file }}"
-  # register: result
+  register: change_ssl_result
+
+- name: 백업 스크립트 출력 확인
+  debug:
+    msg: "{{ change_ssl_result.stdout.splitlines() }}"
 
 # 뒤에서 할당한 변수로 해당 수정해야함
 # - name: 인증서 대체

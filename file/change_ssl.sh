@@ -21,11 +21,11 @@ fi
 
 # 디버깅용 출력
 echo "=== ✅ 입력 변수 확인 ==="
-echo "PATH_CRT: $PATH_CRT"
-echo "PATH_KEY: $PATH_KEY"
-echo "PATH_CHAIN: $PATH_CHAIN"
-echo "WEBSERVER: $WEBSERVER"
-echo "BACKUP_DATE: $BACKUP_DATE"
+echo "Certificate File: $PATH_CRT"
+echo "Key File: $PATH_KEY"
+echo "Chain File: $PATH_CHAIN"
+echo "웹서버: $WEBSERVER"
+echo "백업날짜: $BACKUP_DATE"
 echo "===================="
 
 # PEM 파일 배열 선언

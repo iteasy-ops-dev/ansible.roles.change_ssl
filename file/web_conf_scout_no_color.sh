@@ -99,8 +99,6 @@ else
     fi
 fi
 
-
-
 # 로컬 설치 여부 확인 (Apache 또는 Nginx)
 isLocal=$(which $web_server 2>/dev/null)
 
