@@ -1,43 +1,69 @@
 #!/bin/bash
 
-# 변수 확인
-# 입력 변수
-# $1: crt 경로
-# $2: key 경로
-# $3: chain 경로
+# 입력 변수 확인
+# $1: 현재 crt 경로
+# $2: 현재 key 경로
+# $3: 현재 chain 경로
+# $4: 대체할 crt 경로
+# $5: 대체할 key 경로
+# $6: 대체할 chain 경로
 
 # 변수 선언
-PATH_CRT="$1"
-PATH_KEY="$2"
-PATH_CHAIN="$3"
-WEBSERVER=$(ps -ef | grep -E 'nginx|httpd|apache' | grep -vE 'grep|php|awk' | awk '{print $8}' | head -n 1 | tr -d ':')
+CURRUNT_PATH_CRT="$1"
+CURRUNT_PATH_KEY="$2"
+CURRUNT_PATH_CHAIN="$3"
+NEW_PATH_CRT="$4"
+NEW_PATH_KEY="$5"
+NEW_PATH_CHAIN="$6"
+WEBSERVER=$(ps -ef | grep -E 'nginx|httpd|apache' | grep -vE 'grep|php|awk' | awk '{print $8}' | head -n 1)
 BACKUP_DATE=$(date +"%Y-%m-%d")
 
 # 모든 변수가 할당되었는지 확인
-if [ -z "$PATH_CRT" ] || [ -z "$PATH_KEY" ] || [ -z "$PATH_CHAIN" ]; then
-    echo "Error: All variables (WEBSERVER, PATH_CRT, PATH_KEY, PATH_CHAIN) must be provided."
+if [ -z "$CURRUNT_PATH_CRT" ] || [ -z "$CURRUNT_PATH_KEY" ] || [ -z "$CURRUNT_PATH_CHAIN" ] || [ -z "$NEW_PATH_CRT" ] || [ -z "$NEW_PATH_KEY" ] || [ -z "$NEW_PATH_CHAIN" ]; then
+    echo "❌ Error: All certificate paths must be provided."
     exit 1
 fi
 
 # 디버깅용 출력
-echo "=== ✅ 입력 변수 확인 ==="
-echo "Certificate File: $PATH_CRT"
-echo "Key File: $PATH_KEY"
-echo "Chain File: $PATH_CHAIN"
+echo "=== ⚙️ 입력 변수 확인 ==="
+echo "현재 인증서 파일: $CURRUNT_PATH_CRT"
+echo "현재 키 파일: $CURRUNT_PATH_KEY"
+echo "현재 체인 파일: $CURRUNT_PATH_CHAIN"
+echo "새 인증서 파일: $NEW_PATH_CRT"
+echo "새 키 파일: $NEW_PATH_KEY"
+echo "새 체인 파일: $NEW_PATH_CHAIN"
 echo "웹서버: $WEBSERVER"
-echo "백업날짜: $BACKUP_DATE"
-echo "===================="
+echo "백업 날짜: $BACKUP_DATE"
+echo "========================="
 
-# PEM 파일 배열 선언
-PEM_FILES=(
-    $PATH_CRT
-    $PATH_KEY
-    $PATH_CHAIN
-)
+# NGINX일 경우 종료
+if [[ "$WEBSERVER" == *"nginx"* ]]; then
+    echo "❌ Error: NGINX is currently not supported for this script."
+    exit 1
+fi
 
-# PEM 파일 백업
-for PEM_FILE in "${PEM_FILES[@]}"; do
+# 인증서 백업
+echo "⚙️ 현재 인증서 백업 중..."
+for PEM_FILE in "$CURRUNT_PATH_CRT" "$CURRUNT_PATH_KEY" "$CURRUNT_PATH_CHAIN"; do
     cp "$PEM_FILE" "$PEM_FILE.$BACKUP_DATE"
+    echo "백업 파일 경로: $PEM_FILE.$BACKUP_DATE"
 done
+echo "✅ 백업 완료."
 
-echo "Backup completed for all PEM files."
+# 인증서 대체
+# echo "⚙️ 인증서 대체 중..."
+# mv "$NEW_PATH_CRT" "$CURRUNT_PATH_CRT"
+# mv "$NEW_PATH_KEY" "$CURRUNT_PATH_KEY"
+# mv "$NEW_PATH_CHAIN" "$CURRUNT_PATH_CHAIN"
+# echo "✅ 인증서 파일 대체 완료."
+
+# Apache 설정 테스트 및 적용
+# echo "⚙️ Apache 설정 테스트 중..."
+# if $WEBSERVER -t; then
+#     echo "✅ Apache 설정에 문제가 없습니다. Apache를 재시작합니다."
+#     $WEBSERVER -k graceful
+#     echo "✅ 인증서 연장 완료."
+# else
+#     echo "❌ Apache 설정에 오류가 있습니다."
+#     exit 1
+# fi

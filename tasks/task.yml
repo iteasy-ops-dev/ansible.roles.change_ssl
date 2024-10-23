@@ -1,8 +1,11 @@
 ---
-- name: 스크립트 파일 전송
+- name: 스크립트 파일 및 인증서 전송
   raw: |
     sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no /root/ansible/roles/ansible.roles.change_ssl/file/web_conf_scout_no_color.sh {{ ansible_user }}@{{ ansible_host }}:/tmp/web_conf_scout_no_color.sh
     sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no /root/ansible/roles/ansible.roles.change_ssl/file/change_ssl.sh {{ ansible_user }}@{{ ansible_host }}:/tmp/change_ssl.sh
+    sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no {{ src_cert_file }} {{ ansible_user }}@{{ ansible_host }}:{{ src_cert_file }}
+    sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no {{ src_key_file }} {{ ansible_user }}@{{ ansible_host }}:{{ src_key_file }}
+    sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no {{ src_chain_file }} {{ ansible_user }}@{{ ansible_host }}:{{ src_chain_file }}
   delegate_to: localhost
 
 - name: 웹설정탐색기 스크립트 권한 변경
@@ -37,20 +40,12 @@
 #       - "Chain File: {{ chain_file }}"
 
 - name: 현재 인증서 백업
-  raw: "/tmp/change_ssl.sh {{ cert_file }} {{ key_file }} {{ chain_file }}"
+  raw: "/tmp/change_ssl.sh {{ cert_file }} {{ key_file }} {{ chain_file }} {{ src_cert_file }} {{ src_key_file }} {{ src_chain_file }}"
   register: change_ssl_result
 
 - name: 백업 스크립트 출력 확인
   debug:
     msg: "{{ change_ssl_result.stdout.splitlines() }}"
-
-# 뒤에서 할당한 변수로 해당 수정해야함
-# - name: 인증서 대체
-#   raw: |
-#     sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no {{ src_cert_file }} {{ ansible_user }}@{{ ansible_host }}:{{ src_cert_file }}
-#     sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no {{ src_key_file }} {{ ansible_user }}@{{ ansible_host }}:{{ src_key_file }}
-#     sshpass -p '{{ ansible_password }}' scp -P {{ ansible_port }} -o StrictHostKeyChecking=no {{ src_chain_file }} {{ ansible_user }}@{{ ansible_host }}:{{ src_chain_file }}
-#   delegate_to: localhost
 
 - name: 웹설정탐색기 스크립트 삭제
   raw: "rm -f /tmp/web_conf_scout_no_color.sh"
