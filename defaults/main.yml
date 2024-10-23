@@ -4,3 +4,5 @@ domain_name: ""
 src_cert_file: ""
 src_key_file: ""
 src_chain_file: ""
+
+isRestart: 0

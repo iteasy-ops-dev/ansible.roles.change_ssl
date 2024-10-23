@@ -7,25 +7,29 @@
 # $4: 대체할 crt 경로
 # $5: 대체할 key 경로
 # $6: 대체할 chain 경로
+# $6: 대체할 chain 경로
+# $7: 아파치 재시작 여부 0: false, 1: true
 
 # 변수 선언
-CURRUNT_PATH_CRT="$1"
-CURRUNT_PATH_KEY="$2"
-CURRUNT_PATH_CHAIN="$3"
-NEW_PATH_CRT="$4"
-NEW_PATH_KEY="$5"
-NEW_PATH_CHAIN="$6"
+NEW_PATH_CRT="$1"
+NEW_PATH_KEY="$2"
+NEW_PATH_CHAIN="$3"
+CURRUNT_PATH_CRT="$4"
+CURRUNT_PATH_KEY="$5"
+CURRUNT_PATH_CHAIN="$6"
+IS_RESTART="$7" # 0: false, 1: true
 WEBSERVER=$(ps -ef | grep -E 'nginx|httpd|apache' | grep -vE 'grep|php|awk' | awk '{print $8}' | head -n 1)
 BACKUP_DATE=$(date +"%Y-%m-%d")
 
 # 디버깅용 출력
 echo "=== ✅ 입력 변수 확인 ==="
-echo "현재 인증서 파일: $CURRUNT_PATH_CRT"
-echo "현재 키 파일: $CURRUNT_PATH_KEY"
-echo "현재 체인 파일: $CURRUNT_PATH_CHAIN"
 echo "새 인증서 파일: $NEW_PATH_CRT"
 echo "새 키 파일: $NEW_PATH_KEY"
 echo "새 체인 파일: $NEW_PATH_CHAIN"
+echo "현재 인증서 파일: $CURRUNT_PATH_CRT"
+echo "현재 키 파일: $CURRUNT_PATH_KEY"
+echo "현재 체인 파일: $CURRUNT_PATH_CHAIN"
+echo "재시작 여부: $IS_RESTART"
 echo "웹서버: $WEBSERVER"
 echo "백업 날짜: $BACKUP_DATE"
 echo "========================="
@@ -83,8 +87,14 @@ prune_tmp_file
 # Apache 설정 테스트 및 적용
 echo "⚙️ Apache 설정 테스트 중..."
 if $WEBSERVER -t; then
-    echo "✅ Apache 설정에 문제가 없습니다. Apache를 재시작합니다."
-    # $WEBSERVER -k graceful
+    echo "✅ Apache 설정에 문제가 없습니다."
+    if [ "$IS_RESTART" -eq 1 ]; then # 0: false, 1: true
+        echo "Apache를 재시작합니다."
+        # $WEBSERVER -k graceful
+        echo "✅ Apache 재시작 완료."
+    else
+        echo "⚠️ Apache 재시작은 선택되지 않았습니다. 재시작 여부를 확인하세요."
+    fi
     echo "✅ 인증서 연장 완료."
 else
     echo "❌ Apache 설정에 오류가 있습니다."
