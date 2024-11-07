@@ -48,9 +48,9 @@ echo "========================="
 function prune_tmp_file() 
 {
     echo "⚙️ 임시 폴더의 인증서 삭제 중..."
-    # rm -rf $NEW_PATH_CRT
-    # rm -rf $NEW_PATH_KEY
-    # rm -rf $NEW_PATH_CHAIN
+    rm -rf $NEW_PATH_CRT
+    rm -rf $NEW_PATH_KEY
+    rm -rf $NEW_PATH_CHAIN
     echo "✅ 임시 인증서 삭제 완료."
 }
 # ==================== 함수
