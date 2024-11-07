@@ -86,11 +86,17 @@
   set_fact:
     ssl_webserver_output: "{{ result.stdout.splitlines() }}"
 
+# - name: 인증서 경로에 맞게 변수 재할당
+#   set_fact:
+#     cert_file: "{{ ssl_webserver_output | select('match', '.*crt\\.pem$') | first | default('') }}"
+#     key_file: "{{ ssl_webserver_output | select('match', '.*key\\.pem$') | first | default('') }}"
+#     chain_file: "{{ ssl_webserver_output | select('match', '.*(ca|chain)\\.pem$') | first | default('') }}"
+
 - name: 인증서 경로에 맞게 변수 재할당
   set_fact:
-    cert_file: "{{ ssl_webserver_output | select('match', '.*crt\\.pem$') | first | default('') }}"
-    key_file: "{{ ssl_webserver_output | select('match', '.*key\\.pem$') | first | default('') }}"
-    chain_file: "{{ ssl_webserver_output | select('match', '.*(ca|chain)\\.pem$') | first | default('') }}"
+    cert_file: "{{ ssl_webserver_output | select('match', '^SSLCertificateFile') | map('regex_replace', '^SSLCertificateFile ', '') | first | default('') }}"
+    key_file: "{{ ssl_webserver_output | select('match', '^SSLCertificateKeyFile') | map('regex_replace', '^SSLCertificateKeyFile ', '') | first | default('') }}"
+    chain_file: "{{ ssl_webserver_output | select('match', '^SSLCertificateChainFile|^SSLCACertificateFile') | map('regex_replace', '^SSLCertificate(Chain|CA)File ', '') | first | default('') }}"
 
 - name: 현재 인증서 백업 및 교체 (에러 무시)
   raw: "/tmp/change_ssl.sh {{ src_cert_file }} {{ src_key_file }} {{ src_chain_file }} {{ cert_file }} {{ key_file }} {{ chain_file }} {{ isRestart }}"
