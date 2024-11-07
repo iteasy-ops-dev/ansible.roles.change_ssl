@@ -20,6 +20,17 @@ IS_RESTART="$7" # 0: false, 1: true
 WEBSERVER=$(ps -ef | grep -E 'nginx|httpd|apache' | grep -vE 'grep|php|awk' | awk '{print $8}' | head -n 1)
 BACKUP_DATE=$(date +"%Y-%m-%d")
 
+# 입력 변수 검증
+if [[ ! "$NEW_PATH_CRT" =~ ^/tmp ]] || [[ ! "$NEW_PATH_KEY" =~ ^/tmp ]] || [[ ! "$NEW_PATH_CHAIN" =~ ^/tmp ]]; then
+  echo "❌ 임시 경로들은 반드시 /tmp로 시작해야 합니다."
+  exit 1
+fi
+
+if [[ "$IS_RESTART" != "0" && "$IS_RESTART" != "1" ]]; then
+  echo "❌ 재시작 여부는 0 또는 1 이어야 합니다."
+  exit 1
+fi
+
 # 디버깅용 출력
 echo "=== ✅ 입력 변수 확인 ==="
 echo "새 인증서 파일: $NEW_PATH_CRT"

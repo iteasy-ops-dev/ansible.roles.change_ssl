@@ -91,12 +91,6 @@
   debug: 
     msg: "{{ ssl_webserver_output }}"
 
-# - name: 인증서 경로에 맞게 변수 재할당
-#   set_fact:
-#     cert_file: "{{ ssl_webserver_output | select('match', '.*crt\\.pem$') | first | default('') }}"
-#     key_file: "{{ ssl_webserver_output | select('match', '.*key\\.pem$') | first | default('') }}"
-#     chain_file: "{{ ssl_webserver_output | select('match', '.*(ca|chain)\\.pem$') | first | default('') }}"
-
 - name: 인증서 경로에 맞게 변수 재할당
   set_fact:
     cert_file: "{{ ssl_webserver_output | select('match', '^SSLCertificateFile') | map('regex_replace', '^SSLCertificateFile ', '') | first | default('') }}"
