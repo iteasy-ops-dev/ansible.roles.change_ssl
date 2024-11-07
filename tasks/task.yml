@@ -86,6 +86,10 @@
   set_fact:
     ssl_webserver_output: "{{ result.stdout.splitlines() }}"
 
+- name: 디버깅
+  debug: 
+    msg: "{{ ssl_webserver_output }}"
+
 # - name: 인증서 경로에 맞게 변수 재할당
 #   set_fact:
 #     cert_file: "{{ ssl_webserver_output | select('match', '.*crt\\.pem$') | first | default('') }}"
