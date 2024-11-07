@@ -22,7 +22,7 @@ BACKUP_DATE=$(date +"%Y-%m-%d")
 
 # 입력 변수 검증
 if [[ ! "$NEW_PATH_CRT" =~ ^/tmp ]] || [[ ! "$NEW_PATH_KEY" =~ ^/tmp ]] || [[ ! "$NEW_PATH_CHAIN" =~ ^/tmp ]]; then
-  echo "❌ 임시 경로들은 반드시 /tmp로 시작해야 합니다."
+  echo "❌ 임시 경로들은 반드시 /tmp로 시작해야 합니다. 업로드된 파일을 다시 확인하세요."
   exit 1
 fi
 
@@ -48,9 +48,9 @@ echo "========================="
 function prune_tmp_file() 
 {
     echo "⚙️ 임시 폴더의 인증서 삭제 중..."
-    rm -rf $NEW_PATH_CRT
-    rm -rf $NEW_PATH_KEY
-    rm -rf $NEW_PATH_CHAIN
+    # rm -rf $NEW_PATH_CRT
+    # rm -rf $NEW_PATH_KEY
+    # rm -rf $NEW_PATH_CHAIN
     echo "✅ 임시 인증서 삭제 완료."
 }
 # ==================== 함수
