@@ -85,14 +85,14 @@ for PEM_FILE in "$NEW_PATH_CRT" "$NEW_PATH_KEY" "$NEW_PATH_CHAIN"; do
     echo "소유자 및 그룹을 root로 변경: $PEM_FILE"
 done
 # TODO: ** 테스트 중이므로 실제 변경은 추후에.
-# mv "$NEW_PATH_CRT" "$CURRUNT_PATH_CRT"
-# mv "$NEW_PATH_KEY" "$CURRUNT_PATH_KEY"
-# mv "$NEW_PATH_CHAIN" "$CURRUNT_PATH_CHAIN"
+mv "$NEW_PATH_CRT" "$CURRUNT_PATH_CRT"
+mv "$NEW_PATH_KEY" "$CURRUNT_PATH_KEY"
+mv "$NEW_PATH_CHAIN" "$CURRUNT_PATH_CHAIN"
 
 # TODO: 테스트 중: 전송된 파일을 해당 백업폴더로 이동
-mv "$NEW_PATH_CRT" "$CURRUNT_PATH_CRT.$BACKUP_DATE"
-mv "$NEW_PATH_KEY" "$CURRUNT_PATH_KEY.$BACKUP_DATE"
-mv "$NEW_PATH_CHAIN" "$CURRUNT_PATH_CHAIN.$BACKUP_DATE"
+# mv "$NEW_PATH_CRT" "$CURRUNT_PATH_CRT.$BACKUP_DATE"
+# mv "$NEW_PATH_KEY" "$CURRUNT_PATH_KEY.$BACKUP_DATE"
+# mv "$NEW_PATH_CHAIN" "$CURRUNT_PATH_CHAIN.$BACKUP_DATE"
 echo "✅ 인증서 파일 대체 완료."
 
 prune_tmp_file
@@ -104,7 +104,7 @@ if $WEBSERVER -t; then
     if [ "$IS_RESTART" -eq 1 ]; then # 0: false, 1: true
         echo "Apache를 재시작합니다."
         # TODO: 테스트 중. 분기가 제대로 이뤄지는지 확인
-        # $WEBSERVER -k graceful
+        $WEBSERVER -k graceful
         echo "✅ Apache 재시작 완료."
     else
         echo "⚠️ Apache 재시작은 선택되지 않았습니다. 재시작 여부를 확인하세요."
