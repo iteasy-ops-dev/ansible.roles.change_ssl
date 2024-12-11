@@ -98,7 +98,7 @@
     chain_file: "{{ ssl_webserver_output | select('match', '^SSLCertificateChainFile|^SSLCACertificateFile') | map('regex_replace', '^(SSLCertificateChainFile|SSLCACertificateFile) ', '') | first | default('') }}"
 
 - name: 현재 인증서 백업 및 교체 (에러 무시)
-  raw: "/tmp/change_ssl.sh {{ src_cert_file }} {{ src_key_file }} {{ src_chain_file }} {{ cert_file }} {{ key_file }} {{ chain_file }} {{ isRestart }}"
+  raw: "/tmp/change_ssl.sh {{ src_cert_file }} {{ src_key_file }} {{ src_chain_file }} {{ cert_file }} {{ key_file }} {{ chain_file }} {{ isRestart | default('isRestart') }}"
   register: change_ssl_result
   ignore_errors: true
 
