@@ -377,7 +377,6 @@ else
             
         # nginx인 경우
         *nginx*)
-            # sshpass -p 'utf-8211of987ram' ssh -o HostKeyAlgorithms=+ssh-rsa root@58.229.176.44 -p38371 'bash -s' < search_domain.sh 베이비.com
             printf "Nginx 서버에 대한 도메인 확인 기능을 구현 중입니다.\n"
             web_server_version=$($web_server -v 2>&1 | grep version | awk '{ print $3 }')
             printf "web_server_version: $web_server_version\n"
