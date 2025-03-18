@@ -81,7 +81,8 @@ search_domain_punycode=$(convert_to_punycode "$search_domain")
 printf "search_domain: $search_domain_punycode\n"
 
 # 웹서버 확인
-web_server=$(ps -ef | grep -E 'nginx|httpd|apache' | grep -vE 'grep|php|awk' | awk '{print $8}' | head -n 1 | tr -d ':')
+# web_server=$(ps -ef | grep -E 'nginx|httpd|apache' | grep -vE 'grep|php|awk' | awk '{print $8}' | head -n 1 | tr -d ':')
+web_server=$(ps -ef | awk '{ print $8 }' | grep -E 'nginx|httpd|apache' | grep -vE 'grep|php|awk' | head -n 1 | tr -d ':')
 
 # 실행 중인 웹 서버가 없는 경우 경고 메시지 출력
 if [[ -z "$web_server" ]]; then
