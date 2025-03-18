@@ -17,7 +17,7 @@ CURRUNT_PATH_CRT="$4"
 CURRUNT_PATH_KEY="$5"
 CURRUNT_PATH_CHAIN="$6"
 IS_RESTART="$7" # 0: false, 1: true
-WEBSERVER=$(ps -ef | grep -E 'nginx|httpd|apache' | grep -vE 'grep|php|awk' | awk '{print $8}' | head -n 1)
+WEBSERVER=$(ps -ef | awk '{ print $8 }' | grep -E 'nginx|httpd|apache' | grep -vE 'grep|php|awk' | head -n 1 | tr -d ':')
 BACKUP_DATE=$(date +"%Y-%m-%d")
 
 # 디버깅용 출력
